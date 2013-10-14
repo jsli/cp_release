@@ -28,9 +28,9 @@ func (cp CpRelease) String() string {
 }
 
 func (cp *CpRelease) Save(dal *Dal) (int64, error) {
-	stmt, err := dal.Link.Prepare("INSERT cp_release SET " +
-		"mode=?, type=?, version=?, version_scalar=?, flag=?, last_modify_ts=?, path=?",
-	)
+	insert_sql := fmt.Sprintf("INSERT %s SET mode=?, type=?, version=?, version_scalar=?, flag=?, last_modify_ts=?, path=?",
+		config.TABLE_CP)
+	stmt, err := dal.Link.Prepare(insert_sql)
 
 	if err != nil {
 		return -1, err
@@ -45,7 +45,7 @@ func (cp *CpRelease) Save(dal *Dal) (int64, error) {
 }
 
 func (cp *CpRelease) Update(dal *Dal) (int64, error) {
-	update_sql := fmt.Sprintf("UPDATE cp_release SET flag=?, last_modify_ts=? where id ='%d'", cp.Id)
+	update_sql := fmt.Sprintf("UPDATE %s SET flag=?, last_modify_ts=? where id =%d", config.TABLE_CP, cp.Id)
 	stmt, err := dal.Link.Prepare(update_sql)
 
 	if err != nil {
@@ -85,7 +85,7 @@ func (cp *CpRelease) LoadSelfFromFileEvent(event *fsnotify.FileEvent) error {
 }
 
 func DeleteCpByPath(dal *Dal, path string) (int64, error) {
-	delete_sql := fmt.Sprintf("DELETE FROM cp_release where path='%s'", path)
+	delete_sql := fmt.Sprintf("DELETE FROM %s where path='%s'", config.TABLE_CP, path)
 	return DeleteCp(dal, delete_sql)
 }
 
@@ -105,12 +105,12 @@ func DeleteCp(dal *Dal, delete_sql string) (int64, error) {
 }
 
 func FindCpReleaseByPath(dal *Dal, path string) (*CpRelease, error) {
-	query := fmt.Sprintf("SELECT * FROM cp_release where path='%s' AND flag=%d", path, config.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where path='%s' AND flag=%d", config.TABLE_CP, path, config.AVAILABLE_FLAG)
 	return FindCpRelease(dal, query)
 }
 
 func FindCpReleaseById(dal *Dal, id string) (*CpRelease, error) {
-	query := fmt.Sprintf("SELECT * FROM cp_release where id=%s AND flag=%d", id, config.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where id=%s AND flag=%d", config.TABLE_CP, id, config.AVAILABLE_FLAG)
 	return FindCpRelease(dal, query)
 }
 

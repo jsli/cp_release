@@ -19,11 +19,11 @@ const (
 var (
 	dir_list = []string{
 		config.HLWB_ROOT,
-		//		config.HLWB_DSDS_ROOT,
-		//		config.HLTD_ROOT,
-		//		config.HLTD_DSDS_ROOT,
-		//		config.LTG_ROOT,
-		//		config.LWG_ROOT,
+		config.HLWB_DSDS_ROOT,
+		config.HLTD_ROOT,
+		config.HLTD_DSDS_ROOT,
+		config.LTG_ROOT,
+		config.LWG_ROOT,
 	}
 
 	logOutput *os.File
@@ -87,7 +87,7 @@ func ScanDir(dal *release.Dal, path string, mode string, _type string) error {
 }
 
 func CheckRecord(dal *release.Dal, mode string) error {
-	query := fmt.Sprintf("SELECT * FROM cp_release where mode='%s' and flag=%d", mode, config.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where mode='%s' and flag=%d", config.TABLE_CP, mode, config.AVAILABLE_FLAG)
 	cp_list, err := release.FindCpReleaseList(dal, query)
 	if err != nil {
 		return err

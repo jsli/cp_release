@@ -1,4 +1,4 @@
-package config
+package constant
 
 import ()
 
@@ -16,6 +16,12 @@ const (
 	LWG_ROOT       = CP_RELEASE_ROOT + MODE_LWG
 
 	MONITOR_COUNT = 5
+)
+
+const (
+	TABLE_ARBI = "arbi"
+	TABLE_GRBI = "grbi"
+	TABLE_CP   = "cp_release"
 )
 
 const (
@@ -98,4 +104,5 @@ var (
 
 	MODEL_LIST = []string{MODEL_1088, MODEL_1T88, MODEL_1L88}
 	TYPE_LIST  = []string{TYPE_SINGLE, TYPE_DSDS, TYPE_DSDA}
+	FLAG_LIST  = []int{DROPPED_FLAG, AVAILABLE_FLAG, DISABLE_FLAG}
 )

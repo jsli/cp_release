@@ -6,11 +6,6 @@ import (
 	"github.com/jsli/cp_release/config"
 )
 
-const (
-	TABLE_ARBI = "arbi"
-	TABLE_GRBI = "grbi"
-)
-
 type CpComponent struct {
 	Id           int64
 	CpId         int64
@@ -71,21 +66,21 @@ func (arbi Arbi) String() string {
 }
 
 func (arbi *Arbi) Save(dal *Dal) (int64, error) {
-	return arbi.save(dal, TABLE_ARBI)
+	return arbi.save(dal, config.TABLE_ARBI)
 }
 
 func (arbi *Arbi) Delete(dal *Dal) (int64, error) {
-	delete_sql := fmt.Sprintf("DELETE FROM %s where id=%d AND flag=%d", TABLE_ARBI, arbi.Id)
+	delete_sql := fmt.Sprintf("DELETE FROM %s where id=%d AND flag=%d", config.TABLE_ARBI, arbi.Id)
 	return DeleteCpComponent(dal, delete_sql)
 }
 
 func DeleteArbiByCpId(dal *Dal, cp_id int64) (int64, error) {
-	delete_sql := fmt.Sprintf("DELETE FROM %s where cp_id=%d", TABLE_ARBI, cp_id)
+	delete_sql := fmt.Sprintf("DELETE FROM %s where cp_id=%d", config.TABLE_ARBI, cp_id)
 	return DeleteCpComponent(dal, delete_sql)
 }
 
 func FindArbiByPath(dal *Dal, path string) (*Arbi, error) {
-	query := fmt.Sprintf("SELECT * FROM %s where path='%s' AND flag=%d", TABLE_ARBI, path, config.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where path='%s' AND flag=%d", config.TABLE_ARBI, path, config.AVAILABLE_FLAG)
 	return FindArbi(dal, query)
 }
 
@@ -118,21 +113,21 @@ func (grbi Grbi) String() string {
 }
 
 func (grbi *Grbi) Save(dal *Dal) (int64, error) {
-	return grbi.save(dal, TABLE_GRBI)
+	return grbi.save(dal, config.TABLE_GRBI)
 }
 
 func (grbi *Grbi) Delete(dal *Dal) (int64, error) {
-	delete_sql := fmt.Sprintf("DELETE FROM %s where id=%d", TABLE_GRBI, grbi.Id)
+	delete_sql := fmt.Sprintf("DELETE FROM %s where id=%d", config.TABLE_GRBI, grbi.Id)
 	return DeleteCpComponent(dal, delete_sql)
 }
 
 func DeleteGrbiByCpId(dal *Dal, cp_id int64) (int64, error) {
-	delete_sql := fmt.Sprintf("DELETE FROM %s where cp_id=%d", TABLE_GRBI, cp_id)
+	delete_sql := fmt.Sprintf("DELETE FROM %s where cp_id=%d", config.TABLE_GRBI, cp_id)
 	return DeleteCpComponent(dal, delete_sql)
 }
 
 func FindGrbiByPath(dal *Dal, path string) (*Grbi, error) {
-	query := fmt.Sprintf("SELECT * FROM %s where path='%s' AND flag=%d", TABLE_GRBI, path, config.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where path='%s' AND flag=%d", config.TABLE_GRBI, path, config.AVAILABLE_FLAG)
 	return FindGrbi(dal, query)
 }
 
