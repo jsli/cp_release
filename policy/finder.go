@@ -2,14 +2,14 @@ package policy
 
 import (
 	"fmt"
-	"github.com/jsli/cp_release/config"
+	"github.com/jsli/cp_release/constant"
 	"io/ioutil"
 	"strings"
 )
 
 func FindArbi(rel_path string) ([]string, error) {
 	//	arbi_list := make([]string, 0, 5)
-	full_path := fmt.Sprintf("%s%s", config.CP_RELEASE_ROOT, rel_path)
+	full_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT, rel_path)
 	arbi_list, err := doFindArbi(full_path)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func doFindArbi(path string) ([]string, error) {
 
 func FindGrbi(rel_path string) ([]string, error) {
 	//	arbi_list := make([]string, 0, 5)
-	full_path := fmt.Sprintf("%s%s", config.CP_RELEASE_ROOT, rel_path)
+	full_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT, rel_path)
 	arbi_list, err := doFindGrbi(full_path)
 	if err != nil {
 		return nil, err

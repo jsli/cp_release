@@ -4,13 +4,18 @@ import (
 	"fmt"
 	"github.com/jsli/cp_release/policy"
 	"github.com/jsli/cp_release/release"
+	"github.com/jsli/cp_release/constant"
 	"github.com/jsli/gtbox/pathutil"
 )
 
 func main() {
-	b, err := pathutil.IsExist("/home/manson/OTA/CP_RELEASE/HLWB/HLWB_CP_1.63.0001")
-	fmt.Println(b)
-	fmt.Println(err)
+	full_path := "/home/manson/OTA/CP_RELEASE/HL/HLWB/HLWB_CP_1.63.0001"
+	parent_path := pathutil.ParentPath(full_path)
+	mode := pathutil.BaseName(parent_path)
+	fmt.Println(parent_path)
+	fmt.Println(mode)
+	rel_path := full_path[constant.MODE_TO_PREFIX_LEN[mode]:]
+	fmt.Println(rel_path)
 }
 
 func testExtractVersion() {
@@ -34,7 +39,7 @@ func testDetail() {
 		fmt.Println(err)
 	}
 	fmt.Println(grbi_list)
-	
+
 	fmt.Println("------------------------------------------------")
 
 	dal, err := release.NewDal()
@@ -43,13 +48,13 @@ func testDetail() {
 		return
 	}
 	defer dal.Close()
-	
+
 	arbi, err := release.FindArbiByPath(dal, "HLWB/HLWB_CP_1.65.000/Seagull_SS_DIALOG_MNH/HL_WB_CP_SS_DIALOG_MYNAH_WP.bin")
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(arbi)
-	
+
 	grbi, err := release.FindGrbiByPath(dal, "HLWB/HLWB_CP_1.65.000/HLWB_MSA_1.65.000/MNH/HELAN_A0_M16_AI_Flash.bin")
 	if err != nil {
 		fmt.Println(err)

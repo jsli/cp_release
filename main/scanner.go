@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jsli/cp_release/config"
+	"github.com/jsli/cp_release/constant"
 	"github.com/jsli/cp_release/policy"
 	"github.com/jsli/cp_release/release"
 	"github.com/jsli/gtbox/pathutil"
@@ -13,17 +13,17 @@ import (
 )
 
 const (
-	SCANNER_LOG = config.LOGS_ROOT + "scanner.log"
+	SCANNER_LOG = constant.LOGS_ROOT + "scanner.log"
 )
 
 var (
 	dir_list = []string{
-		config.HLWB_ROOT,
-		config.HLWB_DSDS_ROOT,
-		config.HLTD_ROOT,
-		config.HLTD_DSDS_ROOT,
-		config.LTG_ROOT,
-		config.LWG_ROOT,
+		constant.HLWB_ROOT,
+		constant.HLWB_DSDS_ROOT,
+		constant.HLTD_ROOT,
+		constant.HLTD_DSDS_ROOT,
+		constant.LTG_ROOT,
+		constant.LWG_ROOT,
 	}
 
 	logOutput *os.File
@@ -52,8 +52,8 @@ func main() {
 			continue
 		}
 
-		mode := config.PATH_TO_MODE[path]
-		_type := config.MODE_TO_TYPE[mode]
+		mode := constant.PATH_TO_MODE[path]
+		_type := constant.MODE_TO_TYPE[mode]
 
 		err := ScanDir(dal, path, mode, _type)
 		if err != nil {
@@ -87,14 +87,14 @@ func ScanDir(dal *release.Dal, path string, mode string, _type string) error {
 }
 
 func CheckRecord(dal *release.Dal, mode string) error {
-	query := fmt.Sprintf("SELECT * FROM %s where mode='%s' and flag=%d", config.TABLE_CP, mode, config.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where mode='%s' and flag=%d", constant.TABLE_CP, mode, constant.AVAILABLE_FLAG)
 	cp_list, err := release.FindCpReleaseList(dal, query)
 	if err != nil {
 		return err
 	}
 
 	for _, cp := range cp_list {
-		full_path := fmt.Sprintf("%s%s", config.CP_RELEASE_ROOT, cp.RelPath)
+		full_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT, cp.RelPath)
 		exist, err := pathutil.IsExist(full_path)
 		if err != nil {
 			continue
@@ -114,7 +114,7 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, _t
 		return fmt.Errorf("Illegal version format : %s", info.Name())
 	}
 
-	rel_path := fmt.Sprintf("%s/%s", path, info.Name())[config.PREFIX_LEN:]
+	rel_path := fmt.Sprintf("%s/%s", path, info.Name())[constant.MODE_TO_PREFIX_LEN[mode]:]
 	cp, err := release.FindCpReleaseByPath(dal, rel_path)
 	if err != nil {
 		return err
@@ -134,7 +134,7 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, _t
 		cp.Version = version
 		cp.VersionScalar = policy.QuantitateVersion(version)
 		cp.LastModifyTs = time.Now().Unix()
-		cp.Flag = config.AVAILABLE_FLAG
+		cp.Flag = constant.AVAILABLE_FLAG
 		cp.RelPath = rel_path
 		log.Printf("Find new CP release : %s\n", cp)
 		id, err := cp.Save(dal)
@@ -171,7 +171,7 @@ func ProcessArbi(cp *release.CpRelease, dal *release.Dal) error {
 		return err
 	} else {
 		for _, arbi_path := range arbi_list {
-			arbi_rel_path := arbi_path[config.PREFIX_LEN:]
+			arbi_rel_path := arbi_path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
 			arbi, err := release.FindArbiByPath(dal, arbi_rel_path)
 			if err == nil && arbi != nil {
 				log.Printf("Existed arbi : %s\n", arbi)
@@ -185,7 +185,7 @@ func ProcessArbi(cp *release.CpRelease, dal *release.Dal) error {
 			}
 			arbi = &release.Arbi{}
 			arbi.CpId = cp.Id
-			arbi.Flag = config.AVAILABLE_FLAG
+			arbi.Flag = constant.AVAILABLE_FLAG
 			arbi.LastModifyTs = time.Now().Unix()
 			arbi.RelPath = arbi_rel_path
 			log.Printf("Found arbi in [%s] : %s\n", cp.RelPath, arbi)
@@ -206,7 +206,7 @@ func ProcessGrbi(cp *release.CpRelease, dal *release.Dal) error {
 		return err
 	} else {
 		for _, grbi_path := range grbi_list {
-			grbi_rel_path := grbi_path[config.PREFIX_LEN:]
+			grbi_rel_path := grbi_path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
 			grbi, err := release.FindGrbiByPath(dal, grbi_rel_path)
 			if err == nil && grbi != nil {
 				log.Printf("Existed grbi : %s\n", grbi)
@@ -220,7 +220,7 @@ func ProcessGrbi(cp *release.CpRelease, dal *release.Dal) error {
 			}
 			grbi = &release.Grbi{}
 			grbi.CpId = cp.Id
-			grbi.Flag = config.AVAILABLE_FLAG
+			grbi.Flag = constant.AVAILABLE_FLAG
 			grbi.LastModifyTs = time.Now().Unix()
 			grbi.RelPath = grbi_rel_path
 			log.Printf("Found grbi in [%s] : %s\n", cp.RelPath, grbi)

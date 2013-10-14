@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/howeyc/fsnotify"
-	"github.com/jsli/cp_release/config"
+	"github.com/jsli/cp_release/constant"
 	"github.com/jsli/cp_release/policy"
 	"github.com/jsli/gtbox/pathutil"
 	"time"
@@ -29,7 +29,7 @@ func (cp CpRelease) String() string {
 
 func (cp *CpRelease) Save(dal *Dal) (int64, error) {
 	insert_sql := fmt.Sprintf("INSERT %s SET mode=?, type=?, version=?, version_scalar=?, flag=?, last_modify_ts=?, path=?",
-		config.TABLE_CP)
+		constant.TABLE_CP)
 	stmt, err := dal.Link.Prepare(insert_sql)
 
 	if err != nil {
@@ -45,7 +45,7 @@ func (cp *CpRelease) Save(dal *Dal) (int64, error) {
 }
 
 func (cp *CpRelease) Update(dal *Dal) (int64, error) {
-	update_sql := fmt.Sprintf("UPDATE %s SET flag=?, last_modify_ts=? where id =%d", config.TABLE_CP, cp.Id)
+	update_sql := fmt.Sprintf("UPDATE %s SET flag=?, last_modify_ts=? where id =%d", constant.TABLE_CP, cp.Id)
 	stmt, err := dal.Link.Prepare(update_sql)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (cp *CpRelease) Delete(dal *Dal) (int64, error) {
 func (cp *CpRelease) LoadSelfFromFileEvent(event *fsnotify.FileEvent) error {
 	path := event.Name
 	parent_path := pathutil.ParentPath(path)
-	cp.Mode = config.PATH_TO_MODE[parent_path[:len(parent_path)-1]]
+	cp.Mode = constant.PATH_TO_MODE[parent_path[:len(parent_path)-1]]
 
 	base_name := pathutil.BaseName(path)
 	version := policy.ExtractVersion(base_name)
@@ -77,15 +77,15 @@ func (cp *CpRelease) LoadSelfFromFileEvent(event *fsnotify.FileEvent) error {
 	cp.Version = version
 	cp.VersionScalar = policy.QuantitateVersion(version)
 
-	cp.Type = config.MODE_TO_TYPE[cp.Mode]
+	cp.Type = constant.MODE_TO_TYPE[cp.Mode]
 	cp.LastModifyTs = time.Now().Unix()
-	cp.Flag = config.AVAILABLE_FLAG
-	cp.RelPath = path[config.PREFIX_LEN:]
+	cp.Flag = constant.AVAILABLE_FLAG
+	cp.RelPath = path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
 	return nil
 }
 
 func DeleteCpByPath(dal *Dal, path string) (int64, error) {
-	delete_sql := fmt.Sprintf("DELETE FROM %s where path='%s'", config.TABLE_CP, path)
+	delete_sql := fmt.Sprintf("DELETE FROM %s where path='%s'", constant.TABLE_CP, path)
 	return DeleteCp(dal, delete_sql)
 }
 
@@ -105,12 +105,12 @@ func DeleteCp(dal *Dal, delete_sql string) (int64, error) {
 }
 
 func FindCpReleaseByPath(dal *Dal, path string) (*CpRelease, error) {
-	query := fmt.Sprintf("SELECT * FROM %s where path='%s' AND flag=%d", config.TABLE_CP, path, config.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where path='%s' AND flag=%d", constant.TABLE_CP, path, constant.AVAILABLE_FLAG)
 	return FindCpRelease(dal, query)
 }
 
 func FindCpReleaseById(dal *Dal, id string) (*CpRelease, error) {
-	query := fmt.Sprintf("SELECT * FROM %s where id=%s AND flag=%d", config.TABLE_CP, id, config.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where id=%s AND flag=%d", constant.TABLE_CP, id, constant.AVAILABLE_FLAG)
 	return FindCpRelease(dal, query)
 }
 

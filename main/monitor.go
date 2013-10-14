@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/howeyc/fsnotify"
-	"github.com/jsli/cp_release/config"
+	"github.com/jsli/cp_release/constant"
 	"github.com/jsli/cp_release/release"
 	"github.com/jsli/gtbox/pathutil"
 	"log"
@@ -11,18 +11,18 @@ import (
 )
 
 const (
-	MONITOR_LOG = config.LOGS_ROOT + "monitor.log"
+	MONITOR_LOG = constant.LOGS_ROOT + "monitor.log"
 )
 
 var (
 	watcher_map = make(map[string]*fsnotify.Watcher)
 	dir_list    = []string{
-		config.HLWB_ROOT,
-		config.HLWB_DSDS_ROOT,
-		config.HLTD_ROOT,
-		config.HLTD_DSDS_ROOT,
-		config.LTG_ROOT,
-		config.LWG_ROOT,
+		constant.HLWB_ROOT,
+		constant.HLWB_DSDS_ROOT,
+		constant.HLTD_ROOT,
+		constant.HLTD_DSDS_ROOT,
+		constant.LTG_ROOT,
+		constant.LWG_ROOT,
 	}
 
 	logOutput *os.File
@@ -143,7 +143,7 @@ func ProcessModifyEvent(event *fsnotify.FileEvent) {
 
 	cp := getCpByRelPath(event.Name, dal)
 	if cp != nil {
-		if cp.Flag == config.AVAILABLE_FLAG {
+		if cp.Flag == constant.AVAILABLE_FLAG {
 			log.Printf("CP release modified, delete arbi&grbi for updating in scanner : %s", cp)
 			release.DeleteArbiByCpId(dal, cp.Id)
 			release.DeleteGrbiByCpId(dal, cp.Id)
@@ -160,7 +160,9 @@ func ProcessRenameEvent(event *fsnotify.FileEvent) {
 }
 
 func getCpByRelPath(full_path string, dal *release.Dal) *release.CpRelease {
-	rel_path := full_path[config.PREFIX_LEN:]
+	parent_path := pathutil.ParentPath(full_path)
+	mode := pathutil.BaseName(parent_path)
+	rel_path := full_path[constant.MODE_TO_PREFIX_LEN[mode]:]
 	cp, err := release.FindCpReleaseByPath(dal, rel_path)
 	if err != nil {
 		log.Printf("Find cp failed by [%s]: %s\n", rel_path, err)
