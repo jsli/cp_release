@@ -22,8 +22,8 @@ var (
 		constant.HLWB_DSDS_ROOT,
 		constant.HLTD_ROOT,
 		constant.HLTD_DSDS_ROOT,
-		constant.LTG_ROOT,
-		constant.LWG_ROOT,
+//		constant.LTG_ROOT,
+//		constant.LWG_ROOT,
 	}
 
 	logOutput *os.File
@@ -53,9 +53,9 @@ func main() {
 		}
 
 		mode := constant.PATH_TO_MODE[path]
-		_type := constant.MODE_TO_TYPE[mode]
+		sim := constant.MODE_TO_SIM[mode]
 
-		err := ScanDir(dal, path, mode, _type)
+		err := ScanDir(dal, path, mode, sim)
 		if err != nil {
 			log.Printf("Scan PANIC [%s] failed : %s\n", path, err)
 			panic(err)
@@ -63,7 +63,7 @@ func main() {
 	}
 }
 
-func ScanDir(dal *release.Dal, path string, mode string, _type string) error {
+func ScanDir(dal *release.Dal, path string, mode string, sim string) error {
 	fileInfos, err := ioutil.ReadDir(path)
 	if err != nil {
 		log.Printf("read dir failed : %s\n", err)
@@ -77,7 +77,7 @@ func ScanDir(dal *release.Dal, path string, mode string, _type string) error {
 
 	for _, info := range fileInfos {
 		if info.Mode().IsDir() {
-			err := ProcessDir(info, dal, path, mode, _type, false)
+			err := ProcessDir(info, dal, path, mode, sim, false)
 			if err != nil {
 				log.Printf("ProcessDir failed: %s", err)
 			}
@@ -94,7 +94,7 @@ func CheckRecord(dal *release.Dal, mode string) error {
 	}
 
 	for _, cp := range cp_list {
-		full_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT, cp.RelPath)
+		full_path := fmt.Sprintf("%s%s", constant.MODE_TO_ROOT_PATH[mode], cp.RelPath)
 		exist, err := pathutil.IsExist(full_path)
 		if err != nil {
 			continue
@@ -108,7 +108,7 @@ func CheckRecord(dal *release.Dal, mode string) error {
 	return nil
 }
 
-func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, _type string, force bool) error {
+func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, sim string, force bool) error {
 	version := policy.ExtractVersion(info.Name())
 	if version == "" { //illegal version fmt, ignore
 		return fmt.Errorf("Illegal version format : %s", info.Name())
@@ -130,7 +130,7 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, _t
 	} else {
 		cp = &release.CpRelease{}
 		cp.Mode = mode
-		cp.Type = _type
+		cp.Sim = sim
 		cp.Version = version
 		cp.VersionScalar = policy.QuantitateVersion(version)
 		cp.LastModifyTs = time.Now().Unix()
@@ -166,7 +166,7 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, _t
 }
 
 func ProcessArbi(cp *release.CpRelease, dal *release.Dal) error {
-	arbi_list, err := policy.FindArbi(cp.RelPath)
+	arbi_list, err := policy.FindArbi(cp.RelPath, cp.Mode)
 	if err != nil {
 		return err
 	} else {
@@ -201,7 +201,7 @@ func ProcessArbi(cp *release.CpRelease, dal *release.Dal) error {
 }
 
 func ProcessGrbi(cp *release.CpRelease, dal *release.Dal) error {
-	grbi_list, err := policy.FindGrbi(cp.RelPath)
+	grbi_list, err := policy.FindGrbi(cp.RelPath, cp.Mode)
 	if err != nil {
 		return err
 	} else {

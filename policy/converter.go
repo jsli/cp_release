@@ -12,10 +12,6 @@ var (
 	VersionExtractPattern = regexp.MustCompile(`_CP_\d+\.\d+\.\w{3}$`)
 )
 
-func GetMode(model string, _type string) (string, error) {
-	return "", nil
-}
-
 func ExtractVersion(name string) string {
 	var version string = ""
 	version = VersionExtractPattern.FindString(name)

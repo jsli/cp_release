@@ -4,7 +4,8 @@ import ()
 
 const (
 	//	CP_RELEASE_ROOT = "/home/manson/OTA/LOCAL_RELEASE/"
-	CP_RELEASE_ROOT = "/home/manson/OTA/CP_RELEASE/"
+	//	CP_RELEASE_ROOT = "/home/manson/OTA/CP_RELEASE/"
+	CP_RELEASE_ROOT = "/home/manson/OTA/release/CP/CP_SERVER_MIRROR/"
 
 	LOGS_ROOT = "/home/manson/OTA/logs/"
 
@@ -29,9 +30,9 @@ const (
 )
 
 const (
-	TYPE_SINGLE = "SINGLE"
-	TYPE_DSDS   = "DSDS"
-	TYPE_DSDA   = "DSDA"
+	SIM_SINGLE = "SINGLE"
+	SIM_DSDS   = "DSDS"
+	SIM_DSDA   = "DSDA"
 
 	MODE_HLWB      = "HLWB"
 	MODE_HLWB_DSDS = "HLWB_DSDS"
@@ -71,13 +72,13 @@ var (
 		LTG_ROOT:       MODE_LTG,
 		LWG_ROOT:       MODE_LWG,
 	}
-	MODE_TO_TYPE = map[string]string{
-		MODE_HLWB:      TYPE_SINGLE,
-		MODE_HLTD:      TYPE_SINGLE,
-		MODE_HLWB_DSDS: TYPE_DSDS,
-		MODE_HLTD_DSDS: TYPE_DSDS,
-		MODE_LTG:       TYPE_SINGLE,
-		MODE_LWG:       TYPE_SINGLE,
+	MODE_TO_SIM = map[string]string{
+		MODE_HLWB:      SIM_SINGLE,
+		MODE_HLTD:      SIM_SINGLE,
+		MODE_HLWB_DSDS: SIM_DSDS,
+		MODE_HLTD_DSDS: SIM_DSDS,
+		MODE_LTG:       SIM_SINGLE,
+		MODE_LWG:       SIM_SINGLE,
 	}
 	MODE_TO_NETWORK = map[string]string{
 		MODE_HLWB:      NETWORK_WB,
@@ -111,8 +112,16 @@ var (
 		MODE_LTG:       len(LTE_ROOT),
 		MODE_LWG:       len(LTE_ROOT),
 	}
+	MODE_TO_ROOT_PATH = map[string]string{
+		MODE_HLWB:      HL_ROOT,
+		MODE_HLTD:      HL_ROOT,
+		MODE_HLWB_DSDS: HLTD_DSDS_ROOT,
+		MODE_HLTD_DSDS: HLTD_DSDS_ROOT,
+		MODE_LTG:       LTE_ROOT,
+		MODE_LWG:       LTE_ROOT,
+	}
 
 	MODEL_LIST = []string{MODEL_1088, MODEL_1T88, MODEL_1L88}
-	TYPE_LIST  = []string{TYPE_SINGLE, TYPE_DSDS, TYPE_DSDA}
+	TYPE_LIST  = []string{SIM_SINGLE, SIM_DSDS, SIM_DSDA}
 	FLAG_LIST  = []int{DROPPED_FLAG, AVAILABLE_FLAG, DISABLE_FLAG}
 )

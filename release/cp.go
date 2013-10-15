@@ -14,7 +14,7 @@ import (
 type CpRelease struct {
 	Id            int64
 	Mode          string
-	Type          string
+	Sim          string
 	Version       string
 	VersionScalar int64
 	Flag          int
@@ -23,19 +23,19 @@ type CpRelease struct {
 }
 
 func (cp CpRelease) String() string {
-	return fmt.Sprintf("CpRelease(id=%d, mode=%s, type=%s, version=%s, version_scalar=%d, flag=%d, last_modify_ts=%d, rel_path=%s)",
-		cp.Id, cp.Mode, cp.Type, cp.Version, cp.VersionScalar, cp.Flag, cp.LastModifyTs, cp.RelPath)
+	return fmt.Sprintf("CpRelease(id=%d, mode=%s, sim=%s, version=%s, version_scalar=%d, flag=%d, last_modify_ts=%d, rel_path=%s)",
+		cp.Id, cp.Mode, cp.Sim, cp.Version, cp.VersionScalar, cp.Flag, cp.LastModifyTs, cp.RelPath)
 }
 
 func (cp *CpRelease) Save(dal *Dal) (int64, error) {
-	insert_sql := fmt.Sprintf("INSERT %s SET mode=?, type=?, version=?, version_scalar=?, flag=?, last_modify_ts=?, path=?",
+	insert_sql := fmt.Sprintf("INSERT %s SET mode=?, sim=?, version=?, version_scalar=?, flag=?, last_modify_ts=?, path=?",
 		constant.TABLE_CP)
 	stmt, err := dal.Link.Prepare(insert_sql)
 
 	if err != nil {
 		return -1, err
 	}
-	res, err := stmt.Exec(cp.Mode, cp.Type, cp.Version, cp.VersionScalar, cp.Flag, cp.LastModifyTs, cp.RelPath)
+	res, err := stmt.Exec(cp.Mode, cp.Sim, cp.Version, cp.VersionScalar, cp.Flag, cp.LastModifyTs, cp.RelPath)
 	if err != nil {
 		return -1, err
 	}
@@ -77,7 +77,7 @@ func (cp *CpRelease) LoadSelfFromFileEvent(event *fsnotify.FileEvent) error {
 	cp.Version = version
 	cp.VersionScalar = policy.QuantitateVersion(version)
 
-	cp.Type = constant.MODE_TO_TYPE[cp.Mode]
+	cp.Sim = constant.MODE_TO_SIM[cp.Mode]
 	cp.LastModifyTs = time.Now().Unix()
 	cp.Flag = constant.AVAILABLE_FLAG
 	cp.RelPath = path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
@@ -117,7 +117,7 @@ func FindCpReleaseById(dal *Dal, id string) (*CpRelease, error) {
 func FindCpRelease(dal *Dal, query string) (*CpRelease, error) {
 	row := dal.Link.QueryRow(query)
 	cp := CpRelease{}
-	err := row.Scan(&cp.Id, &cp.Mode, &cp.Type, &cp.Version, &cp.VersionScalar, &cp.Flag,
+	err := row.Scan(&cp.Id, &cp.Mode, &cp.Sim, &cp.Version, &cp.VersionScalar, &cp.Flag,
 		&cp.LastModifyTs, &cp.RelPath)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -142,7 +142,7 @@ func FindCpReleaseList(dal *Dal, query string) ([]*CpRelease, error) {
 	cps := make([]*CpRelease, 0, 100)
 	for rows.Next() {
 		cp := CpRelease{}
-		err := rows.Scan(&cp.Id, &cp.Mode, &cp.Type, &cp.Version, &cp.VersionScalar, &cp.Flag,
+		err := rows.Scan(&cp.Id, &cp.Mode, &cp.Sim, &cp.Version, &cp.VersionScalar, &cp.Flag,
 			&cp.LastModifyTs, &cp.RelPath)
 		if err != nil || cp.Id < 0 {
 			continue
