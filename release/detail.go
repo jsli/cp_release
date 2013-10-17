@@ -56,6 +56,28 @@ func findCpComponent(dal *Dal, query string) (*CpComponent, error) {
 	return &cc, nil
 }
 
+func findCpComponentList(dal *Dal, query string) ([]*CpComponent, error) {
+	rows, err := dal.Link.Query(query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	defer rows.Close()
+
+	ccs := make([]*CpComponent, 0, 100)
+	for rows.Next() {
+		cc := CpComponent{}
+		err := rows.Scan(&cc.Id, &cc.CpId, &cc.Flag, &cc.LastModifyTs, &cc.RelPath)
+		if err != nil || cc.Id < 0 {
+			continue
+		}
+		ccs = append(ccs, &cc)
+	}
+	return ccs, nil
+}
+
 type Arbi struct {
 	CpComponent
 }
@@ -77,6 +99,11 @@ func (arbi *Arbi) Delete(dal *Dal) (int64, error) {
 func DeleteArbiByCpId(dal *Dal, cp_id int64) (int64, error) {
 	delete_sql := fmt.Sprintf("DELETE FROM %s where cp_id=%d", constant.TABLE_ARBI, cp_id)
 	return DeleteCpComponent(dal, delete_sql)
+}
+
+func FindArbiByCpId(dal *Dal, cp_id int64) (*Arbi, error) {
+	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_ARBI, cp_id, constant.AVAILABLE_FLAG)
+	return FindArbi(dal, query)
 }
 
 func FindArbiByPath(dal *Dal, path string) (*Arbi, error) {
@@ -103,6 +130,29 @@ func FindArbi(dal *Dal, query string) (*Arbi, error) {
 	return arbi, nil
 }
 
+func FindArbiList(dal *Dal, query string) ([]*Arbi, error) {
+	ccs, err := findCpComponentList(dal, query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	arbis := make([]*Arbi, 0, 10)
+	for _, cc := range ccs {
+		arbi := &Arbi{}
+		arbi.Id = cc.Id
+		arbi.CpId = cc.CpId
+		arbi.Flag = cc.Flag
+		arbi.LastModifyTs = cc.LastModifyTs
+		arbi.RelPath = cc.RelPath
+		arbis = append(arbis, arbi)
+	}
+
+	return arbis, nil
+}
+
 type Grbi struct {
 	CpComponent
 }
@@ -124,6 +174,11 @@ func (grbi *Grbi) Delete(dal *Dal) (int64, error) {
 func DeleteGrbiByCpId(dal *Dal, cp_id int64) (int64, error) {
 	delete_sql := fmt.Sprintf("DELETE FROM %s where cp_id=%d", constant.TABLE_GRBI, cp_id)
 	return DeleteCpComponent(dal, delete_sql)
+}
+
+func FindGrbiByCpId(dal *Dal, cp_id int64) (*Grbi, error) {
+	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_GRBI, cp_id, constant.AVAILABLE_FLAG)
+	return FindGrbi(dal, query)
 }
 
 func FindGrbiByPath(dal *Dal, path string) (*Grbi, error) {
@@ -148,4 +203,27 @@ func FindGrbi(dal *Dal, query string) (*Grbi, error) {
 	grbi.RelPath = cc.RelPath
 
 	return grbi, nil
+}
+
+func FindGrbiList(dal *Dal, query string) ([]*Grbi, error) {
+	ccs, err := findCpComponentList(dal, query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	grbis := make([]*Grbi, 0, 10)
+	for _, cc := range ccs {
+		grbi := &Grbi{}
+		grbi.Id = cc.Id
+		grbi.CpId = cc.CpId
+		grbi.Flag = cc.Flag
+		grbi.LastModifyTs = cc.LastModifyTs
+		grbi.RelPath = cc.RelPath
+		grbis = append(grbis, grbi)
+	}
+
+	return grbis, nil
 }

@@ -22,8 +22,8 @@ var (
 		constant.HLWB_DSDS_ROOT,
 		constant.HLTD_ROOT,
 		constant.HLTD_DSDS_ROOT,
-//		constant.LTG_ROOT,
-//		constant.LWG_ROOT,
+		constant.LTG_ROOT,
+		constant.LWG_ROOT,
 	}
 
 	logOutput *os.File
