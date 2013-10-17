@@ -24,6 +24,7 @@ const (
 const (
 	TABLE_ARBI = "arbi"
 	TABLE_GRBI = "grbi"
+	TABLE_RFIC = "rfic"
 	TABLE_CP   = "cp_release"
 )
 

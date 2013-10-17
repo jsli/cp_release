@@ -227,3 +227,79 @@ func FindGrbiList(dal *Dal, query string) ([]*Grbi, error) {
 
 	return grbis, nil
 }
+
+
+type Rfic struct {
+	CpComponent
+}
+
+func (rfic Rfic) String() string {
+	return fmt.Sprintf("Rfic(id=%d, cpid=%d, flag=%d, ts=%d, path=%s)",
+		rfic.Id, rfic.CpId, rfic.Flag, rfic.LastModifyTs, rfic.RelPath)
+}
+
+func (rfic *Rfic) Save(dal *Dal) (int64, error) {
+	return rfic.save(dal, constant.TABLE_RFIC)
+}
+
+func (rfic *Rfic) Delete(dal *Dal) (int64, error) {
+	delete_sql := fmt.Sprintf("DELETE FROM %s where id=%d AND flag=%d", constant.TABLE_RFIC, rfic.Id)
+	return DeleteCpComponent(dal, delete_sql)
+}
+
+func DeleteRficByCpId(dal *Dal, cp_id int64) (int64, error) {
+	delete_sql := fmt.Sprintf("DELETE FROM %s where cp_id=%d", constant.TABLE_RFIC, cp_id)
+	return DeleteCpComponent(dal, delete_sql)
+}
+
+func FindRficByCpId(dal *Dal, cp_id int64) (*Rfic, error) {
+	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_RFIC, cp_id, constant.AVAILABLE_FLAG)
+	return FindRfic(dal, query)
+}
+
+func FindRficByPath(dal *Dal, path string) (*Rfic, error) {
+	query := fmt.Sprintf("SELECT * FROM %s where path='%s' AND flag=%d", constant.TABLE_RFIC, path, constant.AVAILABLE_FLAG)
+	return FindRfic(dal, query)
+}
+
+func FindRfic(dal *Dal, query string) (*Rfic, error) {
+	cc, err := findCpComponent(dal, query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	rfic := &Rfic{}
+	rfic.Id = cc.Id
+	rfic.CpId = cc.CpId
+	rfic.Flag = cc.Flag
+	rfic.LastModifyTs = cc.LastModifyTs
+	rfic.RelPath = cc.RelPath
+
+	return rfic, nil
+}
+
+func FindRficList(dal *Dal, query string) ([]*Rfic, error) {
+	ccs, err := findCpComponentList(dal, query)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	rfics := make([]*Rfic, 0, 10)
+	for _, cc := range ccs {
+		rfic := &Rfic{}
+		rfic.Id = cc.Id
+		rfic.CpId = cc.CpId
+		rfic.Flag = cc.Flag
+		rfic.LastModifyTs = cc.LastModifyTs
+		rfic.RelPath = cc.RelPath
+		rfics = append(rfics, rfic)
+	}
+
+	return rfics, nil
+}

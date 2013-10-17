@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	SCANNER_LOG = constant.LOGS_ROOT + "scanner.log"
+	SCANNER_LOG      = constant.LOGS_ROOT + "scanner.log"
+	FLAG_SCAN_DETAIL = false
 )
 
 var (
@@ -148,18 +149,29 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, si
 	}
 
 	//find detail information
-	if cp.Id > 0 {
-		err := ProcessArbi(cp, dal)
-		if err != nil {
-			log.Printf("ProcessArbi failed: %s", err)
-		}
-
-		err = ProcessGrbi(cp, dal)
-		if err != nil {
-			log.Printf("ProcessGrbi failed: %s", err)
-		}
+	if cp.Id > 0 && FLAG_SCAN_DETAIL {
+		ProcessDetail(cp, dal)
 	} else {
 		return fmt.Errorf("Neither finding or saving CP release success! in [%s]", info.Name())
+	}
+
+	return nil
+}
+
+func ProcessDetail(cp *release.CpRelease, dal *release.Dal) error {
+	err := ProcessArbi(cp, dal)
+	if err != nil {
+		log.Printf("ProcessArbi failed: %s", err)
+	}
+
+	err = ProcessGrbi(cp, dal)
+	if err != nil {
+		log.Printf("ProcessGrbi failed: %s", err)
+	}
+
+	err = ProcessRfic(cp, dal)
+	if err != nil {
+		log.Printf("ProcessRfic failed: %s", err)
 	}
 
 	return nil
@@ -194,6 +206,41 @@ func ProcessArbi(cp *release.CpRelease, dal *release.Dal) error {
 				log.Printf("Save ARBI failed: %s\n", err)
 			} else {
 				log.Printf("Save ARBI success: %d | %s\n", id, arbi)
+			}
+		}
+	}
+	return nil
+}
+
+func ProcessRfic(cp *release.CpRelease, dal *release.Dal) error {
+	rfic_list, err := policy.FindRfic(cp.RelPath, cp.Mode)
+	if err != nil {
+		return err
+	} else {
+		for _, rfic_path := range rfic_list {
+			rfic_rel_path := rfic_path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
+			rfic, err := release.FindRficByPath(dal, rfic_rel_path)
+			if err == nil && rfic != nil {
+				log.Printf("Existed rfic : %s\n", rfic)
+				//id unmatched, delete itself
+				if rfic.CpId != cp.Id {
+					log.Printf("Id unmatched cp[%d] <--> rfic[%d] : delete", cp.Id, rfic.CpId)
+					rfic.Delete(dal)
+				} else {
+					continue
+				}
+			}
+			rfic = &release.Rfic{}
+			rfic.CpId = cp.Id
+			rfic.Flag = constant.AVAILABLE_FLAG
+			rfic.LastModifyTs = time.Now().Unix()
+			rfic.RelPath = rfic_rel_path
+			log.Printf("Found rfic in [%s] : %s\n", cp.RelPath, rfic)
+			id, err := rfic.Save(dal)
+			if err != nil {
+				log.Printf("Save RFIC failed: %s\n", err)
+			} else {
+				log.Printf("Save RFIC success: %d | %s\n", id, rfic)
 			}
 		}
 	}
