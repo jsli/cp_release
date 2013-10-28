@@ -3,14 +3,15 @@ package constant
 import ()
 
 const (
-	OTA_ROOT        = "/home/manson/OTA/"
-	CP_RELEASE_ROOT = OTA_ROOT + "release/CP/CP_SERVER_MIRROR/"
-	LOGS_ROOT       = OTA_ROOT + "logs/"
+	OTA_ROOT              = "/home/manson/OTA/"
+	RELEASE_ROOT          = OTA_ROOT + "release/"
+	CP_RELEASE_ROOT       = RELEASE_ROOT + "CP/"
+	CP_SERVER_MIRROR_ROOT = CP_RELEASE_ROOT + "CP_SERVER_MIRROR"
+	LOGS_ROOT             = OTA_ROOT + "logs/"
 
-	HL_ROOT      = CP_RELEASE_ROOT + "HL/"
-	HL_DSDS_ROOT = CP_RELEASE_ROOT + "HL_DSDS/"
-	LTE_ROOT     = CP_RELEASE_ROOT + "LTE/"
-
+	HL_ROOT        = CP_SERVER_MIRROR_ROOT + "HL/"
+	HL_DSDS_ROOT   = CP_SERVER_MIRROR_ROOT + "HL_DSDS/"
+	LTE_ROOT       = CP_SERVER_MIRROR_ROOT + "LTE/"
 	HLWB_ROOT      = HL_ROOT + "HLWB"
 	HLWB_DSDS_ROOT = HL_DSDS_ROOT + "HLWB_DSDS"
 	HLTD_ROOT      = HL_ROOT + "HLTD"
@@ -20,8 +21,6 @@ const (
 
 	SCRIPTS_ROOT = OTA_ROOT + "scripts/"
 	FILTER_ROOT  = SCRIPTS_ROOT + "filter/"
-
-	MONITOR_COUNT = 5
 )
 
 const (
