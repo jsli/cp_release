@@ -14,28 +14,29 @@ import (
 type CpRelease struct {
 	Id            int64
 	Mode          string
-	Sim          string
+	Sim           string
 	Version       string
 	VersionScalar int64
 	Flag          int
 	LastModifyTs  int64
 	RelPath       string
+	Prefix        string
 }
 
 func (cp CpRelease) String() string {
-	return fmt.Sprintf("CpRelease(id=%d, mode=%s, sim=%s, version=%s, version_scalar=%d, flag=%d, last_modify_ts=%d, rel_path=%s)",
-		cp.Id, cp.Mode, cp.Sim, cp.Version, cp.VersionScalar, cp.Flag, cp.LastModifyTs, cp.RelPath)
+	return fmt.Sprintf("CpRelease(id=%d, mode=%s, sim=%s, version=%s, version_scalar=%d, flag=%d, last_modify_ts=%d, rel_path=%s, prefix=%s)",
+		cp.Id, cp.Mode, cp.Sim, cp.Version, cp.VersionScalar, cp.Flag, cp.LastModifyTs, cp.RelPath, cp.Prefix)
 }
 
 func (cp *CpRelease) Save(dal *Dal) (int64, error) {
-	insert_sql := fmt.Sprintf("INSERT %s SET mode=?, sim=?, version=?, version_scalar=?, flag=?, last_modify_ts=?, path=?",
+	insert_sql := fmt.Sprintf("INSERT %s SET mode=?, sim=?, version=?, version_scalar=?, flag=?, last_modify_ts=?, path=?, prefix=?",
 		constant.TABLE_CP)
-	stmt, err := dal.Link.Prepare(insert_sql)
+	stmt, err := dal.DB.Prepare(insert_sql)
 
 	if err != nil {
 		return -1, err
 	}
-	res, err := stmt.Exec(cp.Mode, cp.Sim, cp.Version, cp.VersionScalar, cp.Flag, cp.LastModifyTs, cp.RelPath)
+	res, err := stmt.Exec(cp.Mode, cp.Sim, cp.Version, cp.VersionScalar, cp.Flag, cp.LastModifyTs, cp.RelPath, cp.Prefix)
 	if err != nil {
 		return -1, err
 	}
@@ -46,7 +47,7 @@ func (cp *CpRelease) Save(dal *Dal) (int64, error) {
 
 func (cp *CpRelease) Update(dal *Dal) (int64, error) {
 	update_sql := fmt.Sprintf("UPDATE %s SET flag=?, last_modify_ts=? where id =%d", constant.TABLE_CP, cp.Id)
-	stmt, err := dal.Link.Prepare(update_sql)
+	stmt, err := dal.DB.Prepare(update_sql)
 
 	if err != nil {
 		return -1, err
@@ -90,7 +91,7 @@ func DeleteCpByPath(dal *Dal, path string) (int64, error) {
 }
 
 func DeleteCp(dal *Dal, delete_sql string) (int64, error) {
-	stmt, err := dal.Link.Prepare(delete_sql)
+	stmt, err := dal.DB.Prepare(delete_sql)
 
 	if err != nil {
 		return -1, err
@@ -115,10 +116,10 @@ func FindCpReleaseById(dal *Dal, id string) (*CpRelease, error) {
 }
 
 func FindCpRelease(dal *Dal, query string) (*CpRelease, error) {
-	row := dal.Link.QueryRow(query)
+	row := dal.DB.QueryRow(query)
 	cp := CpRelease{}
 	err := row.Scan(&cp.Id, &cp.Mode, &cp.Sim, &cp.Version, &cp.VersionScalar, &cp.Flag,
-		&cp.LastModifyTs, &cp.RelPath)
+		&cp.LastModifyTs, &cp.RelPath, &cp.Prefix)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -130,7 +131,7 @@ func FindCpRelease(dal *Dal, query string) (*CpRelease, error) {
 }
 
 func FindCpReleaseList(dal *Dal, query string) ([]*CpRelease, error) {
-	rows, err := dal.Link.Query(query)
+	rows, err := dal.DB.Query(query)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -143,7 +144,7 @@ func FindCpReleaseList(dal *Dal, query string) ([]*CpRelease, error) {
 	for rows.Next() {
 		cp := CpRelease{}
 		err := rows.Scan(&cp.Id, &cp.Mode, &cp.Sim, &cp.Version, &cp.VersionScalar, &cp.Flag,
-			&cp.LastModifyTs, &cp.RelPath)
+			&cp.LastModifyTs, &cp.RelPath, &cp.Prefix)
 		if err != nil || cp.Id < 0 {
 			continue
 		}

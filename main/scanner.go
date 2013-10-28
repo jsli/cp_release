@@ -9,20 +9,21 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
 const (
 	SCANNER_LOG      = constant.LOGS_ROOT + "scanner.log"
-	FLAG_SCAN_DETAIL = false
+	FLAG_SCAN_DETAIL = true
 )
 
 var (
 	dir_list = []string{
-		constant.HLWB_ROOT,
-		constant.HLWB_DSDS_ROOT,
-		constant.HLTD_ROOT,
-		constant.HLTD_DSDS_ROOT,
+		//		constant.HLWB_ROOT,
+		//		constant.HLWB_DSDS_ROOT,
+		//		constant.HLTD_ROOT,
+		//		constant.HLTD_DSDS_ROOT,
 		constant.LTG_ROOT,
 		constant.LWG_ROOT,
 	}
@@ -137,6 +138,10 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, si
 		cp.LastModifyTs = time.Now().Unix()
 		cp.Flag = constant.AVAILABLE_FLAG
 		cp.RelPath = rel_path
+
+		slice := strings.Split(rel_path, "/")
+		cp.Prefix = strings.TrimSuffix(slice[1], version)
+
 		log.Printf("Find new CP release : %s\n", cp)
 		id, err := cp.Save(dal)
 		if err != nil {

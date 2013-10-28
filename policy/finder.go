@@ -31,7 +31,7 @@ func doFindArbi(path string) ([]string, error) {
 			}
 			arbi_list = append(arbi_list, list...)
 		} else if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".bin") {
-			if strings.Contains(info.Name(), "_CP") && !strings.Contains(path, "/RFIC/") {
+			if !strings.HasSuffix(info.Name(), "Flash.bin") && !strings.Contains(path, "/RFIC/") {
 				bin_path := fmt.Sprintf("%s/%s", path, info.Name())
 				//				fmt.Printf("append : %s\n", bin_path)
 				arbi_list = append(arbi_list, bin_path)
@@ -44,7 +44,7 @@ func doFindArbi(path string) ([]string, error) {
 func FindRfic(rel_path string, mode string) ([]string, error) {
 	//	arbi_list := make([]string, 0, 5)
 	full_path := fmt.Sprintf("%s%s", constant.MODE_TO_ROOT_PATH[mode], rel_path)
-	rfic_list, err := doFindArbi(full_path)
+	rfic_list, err := doFindRfic(full_path)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func doFindRfic(path string) ([]string, error) {
 			}
 			rfic_list = append(rfic_list, list...)
 		} else if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".bin") {
-			if strings.Contains(path, "RFIC") {
+			if strings.Contains(path, "/RFIC/") {
 				bin_path := fmt.Sprintf("%s/%s", path, info.Name())
 				//				fmt.Printf("append : %s\n", bin_path)
 				rfic_list = append(rfic_list, bin_path)

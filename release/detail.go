@@ -16,7 +16,7 @@ type CpComponent struct {
 
 func (cc *CpComponent) save(dal *Dal, table string) (int64, error) {
 	prepare := fmt.Sprintf("INSERT %s SET cp_id=?, flag=?, last_modify_ts=?, path=?", table)
-	stmt, err := dal.Link.Prepare(prepare)
+	stmt, err := dal.DB.Prepare(prepare)
 
 	if err != nil {
 		return -1, err
@@ -31,7 +31,7 @@ func (cc *CpComponent) save(dal *Dal, table string) (int64, error) {
 }
 
 func DeleteCpComponent(dal *Dal, delete_sql string) (int64, error) {
-	stmt, err := dal.Link.Prepare(delete_sql)
+	stmt, err := dal.DB.Prepare(delete_sql)
 
 	if err != nil {
 		return -1, err
@@ -46,7 +46,7 @@ func DeleteCpComponent(dal *Dal, delete_sql string) (int64, error) {
 }
 
 func findCpComponent(dal *Dal, query string) (*CpComponent, error) {
-	row := dal.Link.QueryRow(query)
+	row := dal.DB.QueryRow(query)
 	cc := CpComponent{}
 	err := row.Scan(&cc.Id, &cc.CpId, &cc.Flag, &cc.LastModifyTs, &cc.RelPath)
 	if err != nil {
@@ -57,7 +57,7 @@ func findCpComponent(dal *Dal, query string) (*CpComponent, error) {
 }
 
 func findCpComponentList(dal *Dal, query string) ([]*CpComponent, error) {
-	rows, err := dal.Link.Query(query)
+	rows, err := dal.DB.Query(query)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -101,9 +101,9 @@ func DeleteArbiByCpId(dal *Dal, cp_id int64) (int64, error) {
 	return DeleteCpComponent(dal, delete_sql)
 }
 
-func FindArbiByCpId(dal *Dal, cp_id int64) (*Arbi, error) {
+func FindArbiByCpId(dal *Dal, cp_id int64) ([]*Arbi, error) {
 	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_ARBI, cp_id, constant.AVAILABLE_FLAG)
-	return FindArbi(dal, query)
+	return FindArbiList(dal, query)
 }
 
 func FindArbiByPath(dal *Dal, path string) (*Arbi, error) {
@@ -176,9 +176,9 @@ func DeleteGrbiByCpId(dal *Dal, cp_id int64) (int64, error) {
 	return DeleteCpComponent(dal, delete_sql)
 }
 
-func FindGrbiByCpId(dal *Dal, cp_id int64) (*Grbi, error) {
+func FindGrbiByCpId(dal *Dal, cp_id int64) ([]*Grbi, error) {
 	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_GRBI, cp_id, constant.AVAILABLE_FLAG)
-	return FindGrbi(dal, query)
+	return FindGrbiList(dal, query)
 }
 
 func FindGrbiByPath(dal *Dal, path string) (*Grbi, error) {
@@ -252,9 +252,9 @@ func DeleteRficByCpId(dal *Dal, cp_id int64) (int64, error) {
 	return DeleteCpComponent(dal, delete_sql)
 }
 
-func FindRficByCpId(dal *Dal, cp_id int64) (*Rfic, error) {
+func FindRficByCpId(dal *Dal, cp_id int64) ([]*Rfic, error) {
 	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_RFIC, cp_id, constant.AVAILABLE_FLAG)
-	return FindRfic(dal, query)
+	return FindRficList(dal, query)
 }
 
 func FindRficByPath(dal *Dal, path string) (*Rfic, error) {
