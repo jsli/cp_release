@@ -6,7 +6,7 @@ const (
 	OTA_ROOT              = "/home/manson/OTA/"
 	RELEASE_ROOT          = OTA_ROOT + "release/"
 	CP_RELEASE_ROOT       = RELEASE_ROOT + "CP/"
-	CP_SERVER_MIRROR_ROOT = CP_RELEASE_ROOT + "CP_SERVER_MIRROR"
+	CP_SERVER_MIRROR_ROOT = CP_RELEASE_ROOT + "CP_SERVER_MIRROR/"
 	LOGS_ROOT             = OTA_ROOT + "logs/"
 
 	HL_ROOT        = CP_SERVER_MIRROR_ROOT + "HL/"

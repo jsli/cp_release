@@ -20,10 +20,10 @@ const (
 
 var (
 	dir_list = []string{
-		//		constant.HLWB_ROOT,
-		//		constant.HLWB_DSDS_ROOT,
-		//		constant.HLTD_ROOT,
-		//		constant.HLTD_DSDS_ROOT,
+		constant.HLWB_ROOT,
+		constant.HLWB_DSDS_ROOT,
+		constant.HLTD_ROOT,
+		constant.HLTD_DSDS_ROOT,
 		constant.LTG_ROOT,
 		constant.LWG_ROOT,
 	}
