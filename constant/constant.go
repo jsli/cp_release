@@ -3,7 +3,7 @@ package constant
 import ()
 
 const (
-	OTA_ROOT              = "/home/manson/OTA/"
+	OTA_ROOT              = "/home/jianmin/OTA/"
 	RELEASE_ROOT          = OTA_ROOT + "release/"
 	CP_RELEASE_ROOT       = RELEASE_ROOT + "CP/"
 	CP_SERVER_MIRROR_ROOT = CP_RELEASE_ROOT + "CP_SERVER_MIRROR/"
