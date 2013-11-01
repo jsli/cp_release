@@ -16,6 +16,7 @@ import (
 const (
 	SCANNER_LOG      = constant.LOGS_ROOT + "scanner.log"
 	FLAG_SCAN_DETAIL = true
+	SCAN_INTERNAL    = 100
 )
 
 var (
@@ -48,20 +49,27 @@ func main() {
 	}
 	defer dal.Close()
 
-	for _, path := range dir_list {
-		if exist, err := pathutil.IsExist(path); !exist && err == nil {
-			//			pathutil.MkDir(path)
-			continue
-		}
+	counter := 0
+	for {
+		counter = counter + 1
+		log.Printf("scan %d times ----------------------------begin\n", counter)
+		for _, path := range dir_list {
+			if exist, err := pathutil.IsExist(path); !exist && err == nil {
+				//			pathutil.MkDir(path)
+				continue
+			}
 
-		mode := constant.PATH_TO_MODE[path]
-		sim := constant.MODE_TO_SIM[mode]
+			mode := constant.PATH_TO_MODE[path]
+			sim := constant.MODE_TO_SIM[mode]
 
-		err := ScanDir(dal, path, mode, sim)
-		if err != nil {
-			log.Printf("Scan PANIC [%s] failed : %s\n", path, err)
-			panic(err)
+			err := ScanDir(dal, path, mode, sim)
+			if err != nil {
+				log.Printf("Scan PANIC [%s] failed : %s\n", path, err)
+				panic(err)
+			}
 		}
+		log.Printf("scan %d times ----------------------------end\n", counter)
+		time.Sleep(SCAN_INTERNAL * time.Second)
 	}
 }
 
