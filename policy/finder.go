@@ -9,7 +9,7 @@ import (
 
 func FindArbi(rel_path string, mode string) ([]string, error) {
 	//	arbi_list := make([]string, 0, 5)
-	full_path := fmt.Sprintf("%s%s", constant.MODE_TO_ROOT_PATH[mode], rel_path)
+	full_path := fmt.Sprintf("%s%s", constant.CP_SERVER_MIRROR_ROOT, rel_path)
 	arbi_list, err := doFindArbi(full_path)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func doFindArbi(path string) ([]string, error) {
 
 func FindRfic(rel_path string, mode string) ([]string, error) {
 	//	arbi_list := make([]string, 0, 5)
-	full_path := fmt.Sprintf("%s%s", constant.MODE_TO_ROOT_PATH[mode], rel_path)
+	full_path := fmt.Sprintf("%s%s", constant.CP_SERVER_MIRROR_ROOT, rel_path)
 	rfic_list, err := doFindRfic(full_path)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func doFindRfic(path string) ([]string, error) {
 
 func FindGrbi(rel_path string, mode string) ([]string, error) {
 	//	arbi_list := make([]string, 0, 5)
-	full_path := fmt.Sprintf("%s%s", constant.MODE_TO_ROOT_PATH[mode], rel_path)
+	full_path := fmt.Sprintf("%s%s", constant.CP_SERVER_MIRROR_ROOT, rel_path)
 	arbi_list, err := doFindGrbi(full_path)
 	if err != nil {
 		return nil, err

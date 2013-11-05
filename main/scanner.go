@@ -104,7 +104,7 @@ func CheckRecord(dal *release.Dal, mode string) error {
 	}
 
 	for _, cp := range cp_list {
-		full_path := fmt.Sprintf("%s%s", constant.MODE_TO_ROOT_PATH[mode], cp.RelPath)
+		full_path := fmt.Sprintf("%s%s", constant.CP_SERVER_MIRROR_ROOT, cp.RelPath)
 		exist, err := pathutil.IsExist(full_path)
 		if err != nil {
 			continue
@@ -113,6 +113,8 @@ func CheckRecord(dal *release.Dal, mode string) error {
 		if !exist {
 			log.Printf("CheckDir db and fs unmatched, delete db record: %s", cp)
 			cp.Delete(dal)
+		} else {
+			ProcessDetail(cp, dal)
 		}
 	}
 	return nil
@@ -123,8 +125,7 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, si
 	if version == "" { //illegal version fmt, ignore
 		return fmt.Errorf("Illegal version format : %s", info.Name())
 	}
-
-	rel_path := fmt.Sprintf("%s/%s", path, info.Name())[constant.MODE_TO_PREFIX_LEN[mode]:]
+	rel_path := fmt.Sprintf("%s/%s", path, info.Name())[constant.PATH_PREFIX_LEN:]
 	cp, err := release.FindCpReleaseByPath(dal, rel_path)
 	if err != nil {
 		return err
@@ -136,6 +137,7 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, si
 			log.Printf("Existed CP release, delete arbi&grbi for force updating : %s", cp)
 			release.DeleteArbiByCpId(dal, cp.Id)
 			release.DeleteGrbiByCpId(dal, cp.Id)
+			release.DeleteRficByCpId(dal, cp.Id)
 		}
 	} else {
 		cp = &release.CpRelease{}
@@ -148,7 +150,7 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, si
 		cp.RelPath = rel_path
 
 		slice := strings.Split(rel_path, "/")
-		cp.Prefix = strings.TrimSuffix(slice[1], version)
+		cp.Prefix = strings.TrimSuffix(slice[2], version)
 
 		log.Printf("Find new CP release : %s\n", cp)
 		id, err := cp.Save(dal)
@@ -196,7 +198,7 @@ func ProcessArbi(cp *release.CpRelease, dal *release.Dal) error {
 		return err
 	} else {
 		for _, arbi_path := range arbi_list {
-			arbi_rel_path := arbi_path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
+			arbi_rel_path := arbi_path[constant.PATH_PREFIX_LEN:]
 			arbi, err := release.FindArbiByPath(dal, arbi_rel_path)
 			if err == nil && arbi != nil {
 				log.Printf("Existed arbi : %s\n", arbi)
@@ -231,7 +233,7 @@ func ProcessRfic(cp *release.CpRelease, dal *release.Dal) error {
 		return err
 	} else {
 		for _, rfic_path := range rfic_list {
-			rfic_rel_path := rfic_path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
+			rfic_rel_path := rfic_path[constant.PATH_PREFIX_LEN:]
 			rfic, err := release.FindRficByPath(dal, rfic_rel_path)
 			if err == nil && rfic != nil {
 				log.Printf("Existed rfic : %s\n", rfic)
@@ -266,7 +268,7 @@ func ProcessGrbi(cp *release.CpRelease, dal *release.Dal) error {
 		return err
 	} else {
 		for _, grbi_path := range grbi_list {
-			grbi_rel_path := grbi_path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
+			grbi_rel_path := grbi_path[constant.PATH_PREFIX_LEN:]
 			grbi, err := release.FindGrbiByPath(dal, grbi_rel_path)
 			if err == nil && grbi != nil {
 				log.Printf("Existed grbi : %s\n", grbi)
