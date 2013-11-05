@@ -81,7 +81,7 @@ func (cp *CpRelease) LoadSelfFromFileEvent(event *fsnotify.FileEvent) error {
 	cp.Sim = constant.MODE_TO_SIM[cp.Mode]
 	cp.LastModifyTs = time.Now().Unix()
 	cp.Flag = constant.AVAILABLE_FLAG
-	cp.RelPath = path[constant.MODE_TO_PREFIX_LEN[cp.Mode]:]
+	cp.RelPath = path[constant.PATH_PREFIX_LEN:]
 	return nil
 }
 
