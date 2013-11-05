@@ -160,8 +160,6 @@ func ProcessRenameEvent(event *fsnotify.FileEvent) {
 }
 
 func getCpByRelPath(full_path string, dal *release.Dal) *release.CpRelease {
-	parent_path := pathutil.ParentPath(full_path)
-	mode := pathutil.BaseName(parent_path)
 	rel_path := full_path[constant.PATH_PREFIX_LEN:]
 	cp, err := release.FindCpReleaseByPath(dal, rel_path)
 	if err != nil {
