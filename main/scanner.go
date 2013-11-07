@@ -113,6 +113,9 @@ func CheckRecord(dal *release.Dal, mode string) error {
 		if !exist {
 			log.Printf("CheckDir db and fs unmatched, delete db record: %s", cp)
 			cp.Delete(dal)
+			release.DeleteArbiByCpId(dal, cp.Id)
+			release.DeleteGrbiByCpId(dal, cp.Id)
+			release.DeleteRficByCpId(dal, cp.Id)
 		} else {
 			ProcessDetail(cp, dal)
 		}
