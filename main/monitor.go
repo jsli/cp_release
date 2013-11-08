@@ -147,6 +147,7 @@ func ProcessModifyEvent(event *fsnotify.FileEvent) {
 			log.Printf("CP release modified, delete arbi&grbi for updating in scanner : %s", cp)
 			release.DeleteArbiByCpId(dal, cp.Id)
 			release.DeleteGrbiByCpId(dal, cp.Id)
+			release.DeleteRficByCpId(dal, cp.Id)
 		}
 	}
 }

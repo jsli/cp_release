@@ -5,6 +5,7 @@ import (
 	"github.com/jsli/cp_release/constant"
 	"github.com/jsli/cp_release/policy"
 	"github.com/jsli/cp_release/release"
+	"github.com/jsli/gtbox/file"
 	"github.com/jsli/gtbox/pathutil"
 	"io/ioutil"
 	"log"
@@ -56,6 +57,7 @@ func main() {
 		for _, path := range dir_list {
 			if exist, err := pathutil.IsExist(path); !exist && err == nil {
 				//			pathutil.MkDir(path)
+				log.Printf("scan dir error : %s\n", err)
 				continue
 			}
 
@@ -80,9 +82,9 @@ func ScanDir(dal *release.Dal, path string, mode string, sim string) error {
 		return err
 	}
 
-	err = CheckRecord(dal, mode)
+	err = CheckConsistency(dal, mode)
 	if err != nil {
-		log.Printf("Check CP release failed : %s\n", err)
+		log.Printf("Check CP release Consistency failed : %s\n", err)
 	}
 
 	for _, info := range fileInfos {
@@ -96,7 +98,7 @@ func ScanDir(dal *release.Dal, path string, mode string, sim string) error {
 	return nil
 }
 
-func CheckRecord(dal *release.Dal, mode string) error {
+func CheckConsistency(dal *release.Dal, mode string) error {
 	query := fmt.Sprintf("SELECT * FROM %s where mode='%s' and flag=%d", constant.TABLE_CP, mode, constant.AVAILABLE_FLAG)
 	cp_list, err := release.FindCpReleaseList(dal, query)
 	if err != nil {
@@ -104,7 +106,7 @@ func CheckRecord(dal *release.Dal, mode string) error {
 	}
 
 	for _, cp := range cp_list {
-		full_path := fmt.Sprintf("%s%s", constant.CP_SERVER_MIRROR_ROOT, cp.RelPath)
+		full_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT_FINAL, cp.RelPath)
 		exist, err := pathutil.IsExist(full_path)
 		if err != nil {
 			continue
@@ -118,6 +120,31 @@ func CheckRecord(dal *release.Dal, mode string) error {
 			release.DeleteRficByCpId(dal, cp.Id)
 		} else {
 			ProcessDetail(cp, dal)
+		}
+	}
+	return nil
+}
+
+func CheckTimestamp(dal *release.Dal, mode string) error {
+	query := fmt.Sprintf("SELECT * FROM %s where mode='%s' and flag=%d", constant.TABLE_CP, mode, constant.DISABLE_FLAG)
+	cp_list, err := release.FindCpReleaseList(dal, query)
+	if err != nil {
+		return err
+	}
+
+	for _, cp := range cp_list {
+		full_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT_FINAL, cp.RelPath)
+		mTs, err := file.GetFileModifyTs(full_path)
+		if err != nil {
+			continue
+		}
+		nTs := time.Now().Unix()
+		i := nTs - mTs
+		fmt.Println(full_path, " ======================", i)
+		if (nTs - mTs) > 5*1000000000 {
+			cp.Flag = constant.AVAILABLE_FLAG
+			cp.LastModifyTs = nTs
+			cp.Update(dal)
 		}
 	}
 	return nil
