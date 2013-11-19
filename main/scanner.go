@@ -17,7 +17,7 @@ import (
 const (
 	SCANNER_LOG      = constant.LOGS_ROOT + "scanner.log"
 	FLAG_SCAN_DETAIL = true
-	SCAN_INTERNAL    = 100
+	SCAN_INTERNAL    = 10
 )
 
 var (
@@ -119,6 +119,48 @@ func CheckConsistency(dal *release.Dal, mode string) error {
 			release.DeleteGrbiByCpId(dal, cp.Id)
 			release.DeleteRficByCpId(dal, cp.Id)
 		} else {
+			arbis, err := release.FindArbiByCpId(dal, cp.Id)
+			if err == nil {
+				for _, arbi := range arbis {
+					arbi_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT_FINAL, arbi.RelPath)
+					arbi_exist, err := pathutil.IsExist(arbi_path)
+					if err != nil {
+						continue
+					}
+					if !arbi_exist {
+						arbi.Delete(dal)
+					}
+				}
+			}
+
+			grbis, err := release.FindGrbiByCpId(dal, cp.Id)
+			if err == nil {
+				for _, grbi := range grbis {
+					grbi_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT_FINAL, grbi.RelPath)
+					grbi_exist, err := pathutil.IsExist(grbi_path)
+					if err != nil {
+						continue
+					}
+					if !grbi_exist {
+						grbi.Delete(dal)
+					}
+				}
+			}
+
+			rfics, err := release.FindRficByCpId(dal, cp.Id)
+			if err == nil {
+				for _, rfic := range rfics {
+					rfic_path := fmt.Sprintf("%s%s", constant.CP_RELEASE_ROOT_FINAL, rfic.RelPath)
+					rfic_exist, err := pathutil.IsExist(rfic_path)
+					if err != nil {
+						continue
+					}
+					if !rfic_exist {
+						rfic.Delete(dal)
+					}
+				}
+			}
+
 			ProcessDetail(cp, dal)
 		}
 	}
