@@ -128,7 +128,8 @@ func CheckConsistency(dal *release.Dal, mode string) error {
 						continue
 					}
 					if !arbi_exist {
-						arbi.Delete(dal)
+						_, err := arbi.Delete(dal)
+						log.Printf("Check arbi in db and fs unmatched, delete arbi record: %s\n%s ", arbi, err)
 					}
 				}
 			}
@@ -142,7 +143,8 @@ func CheckConsistency(dal *release.Dal, mode string) error {
 						continue
 					}
 					if !grbi_exist {
-						grbi.Delete(dal)
+						_, err := grbi.Delete(dal)
+						log.Printf("Check grbi in db and fs unmatched, delete grbi record: %s\n%s ", grbi, err)
 					}
 				}
 			}
@@ -156,7 +158,8 @@ func CheckConsistency(dal *release.Dal, mode string) error {
 						continue
 					}
 					if !rfic_exist {
-						rfic.Delete(dal)
+						_, err := rfic.Delete(dal)
+						log.Printf("Check rfic in db and fs unmatched, delete rfic record: %s\n%s ", rfic, err)
 					}
 				}
 			}
@@ -206,7 +209,7 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, si
 		if !force {
 			return fmt.Errorf("Existed CP release : %s", cp)
 		} else {
-			log.Printf("Existed CP release, delete arbi&grbi for force updating : %s", cp)
+			//			log.Printf("Existed CP release, delete arbi&grbi for force updating : %s", cp)
 			release.DeleteArbiByCpId(dal, cp.Id)
 			release.DeleteGrbiByCpId(dal, cp.Id)
 			release.DeleteRficByCpId(dal, cp.Id)
@@ -224,14 +227,14 @@ func ProcessDir(info os.FileInfo, dal *release.Dal, path string, mode string, si
 		slice := strings.Split(rel_path, "/")
 		cp.Prefix = strings.TrimSuffix(slice[2], version)
 
-		log.Printf("Find new CP release : %s\n", cp)
+		//		log.Printf("Find new CP release : %s\n", cp)
 		id, err := cp.Save(dal)
 		if err != nil {
 			cp.Id = -1
 			log.Printf("Save CP release failed: %s\n", err)
 		} else {
 			cp.Id = id
-			log.Printf("Save CP release success: %d | %s\n", id, cp)
+			//			log.Printf("Save CP release success: %d | %s\n", id, cp)
 		}
 	}
 
@@ -273,7 +276,7 @@ func ProcessArbi(cp *release.CpRelease, dal *release.Dal) error {
 			arbi_rel_path := arbi_path[constant.PATH_PREFIX_LEN:]
 			arbi, err := release.FindArbiByPath(dal, arbi_rel_path)
 			if err == nil && arbi != nil {
-				log.Printf("Existed arbi : %s\n", arbi)
+				//				log.Printf("Existed arbi : %s\n", arbi)
 				//id unmatched, delete itself
 				if arbi.CpId != cp.Id {
 					log.Printf("Id unmatched cp[%d] <--> arbi[%d] : delete", cp.Id, arbi.CpId)
@@ -287,7 +290,7 @@ func ProcessArbi(cp *release.CpRelease, dal *release.Dal) error {
 			arbi.Flag = constant.AVAILABLE_FLAG
 			arbi.LastModifyTs = time.Now().Unix()
 			arbi.RelPath = arbi_rel_path
-			log.Printf("Found arbi in [%s] : %s\n", cp.RelPath, arbi)
+			//			log.Printf("Found arbi in [%s] : %s\n", cp.RelPath, arbi)
 			id, err := arbi.Save(dal)
 			if err != nil {
 				log.Printf("Save ARBI failed: %s\n", err)
@@ -308,7 +311,7 @@ func ProcessRfic(cp *release.CpRelease, dal *release.Dal) error {
 			rfic_rel_path := rfic_path[constant.PATH_PREFIX_LEN:]
 			rfic, err := release.FindRficByPath(dal, rfic_rel_path)
 			if err == nil && rfic != nil {
-				log.Printf("Existed rfic : %s\n", rfic)
+				//				log.Printf("Existed rfic : %s\n", rfic)
 				//id unmatched, delete itself
 				if rfic.CpId != cp.Id {
 					log.Printf("Id unmatched cp[%d] <--> rfic[%d] : delete", cp.Id, rfic.CpId)
@@ -322,7 +325,7 @@ func ProcessRfic(cp *release.CpRelease, dal *release.Dal) error {
 			rfic.Flag = constant.AVAILABLE_FLAG
 			rfic.LastModifyTs = time.Now().Unix()
 			rfic.RelPath = rfic_rel_path
-			log.Printf("Found rfic in [%s] : %s\n", cp.RelPath, rfic)
+			//			log.Printf("Found rfic in [%s] : %s\n", cp.RelPath, rfic)
 			id, err := rfic.Save(dal)
 			if err != nil {
 				log.Printf("Save RFIC failed: %s\n", err)
@@ -343,7 +346,7 @@ func ProcessGrbi(cp *release.CpRelease, dal *release.Dal) error {
 			grbi_rel_path := grbi_path[constant.PATH_PREFIX_LEN:]
 			grbi, err := release.FindGrbiByPath(dal, grbi_rel_path)
 			if err == nil && grbi != nil {
-				log.Printf("Existed grbi : %s\n", grbi)
+				//				log.Printf("Existed grbi : %s\n", grbi)
 				//id unmatched, delete itself
 				if grbi.CpId != cp.Id {
 					log.Printf("Id unmatched cp[%d] <--> grbi[%d] : delete", cp.Id, grbi.CpId)
@@ -357,7 +360,7 @@ func ProcessGrbi(cp *release.CpRelease, dal *release.Dal) error {
 			grbi.Flag = constant.AVAILABLE_FLAG
 			grbi.LastModifyTs = time.Now().Unix()
 			grbi.RelPath = grbi_rel_path
-			log.Printf("Found grbi in [%s] : %s\n", cp.RelPath, grbi)
+			//			log.Printf("Found grbi in [%s] : %s\n", cp.RelPath, grbi)
 			id, err := grbi.Save(dal)
 			if err != nil {
 				log.Printf("Save GRBI failed: %s\n", err)
