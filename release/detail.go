@@ -102,7 +102,7 @@ func DeleteArbiByCpId(dal *Dal, cp_id int64) (int64, error) {
 }
 
 func FindArbiByCpId(dal *Dal, cp_id int64) ([]*Arbi, error) {
-	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_ARBI, cp_id, constant.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where cp_id=%d AND flag=%d", constant.TABLE_ARBI, cp_id, constant.AVAILABLE_FLAG)
 	return FindArbiList(dal, query)
 }
 
@@ -177,7 +177,7 @@ func DeleteGrbiByCpId(dal *Dal, cp_id int64) (int64, error) {
 }
 
 func FindGrbiByCpId(dal *Dal, cp_id int64) ([]*Grbi, error) {
-	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_GRBI, cp_id, constant.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where cp_id=%d AND flag=%d", constant.TABLE_GRBI, cp_id, constant.AVAILABLE_FLAG)
 	return FindGrbiList(dal, query)
 }
 
@@ -228,7 +228,6 @@ func FindGrbiList(dal *Dal, query string) ([]*Grbi, error) {
 	return grbis, nil
 }
 
-
 type Rfic struct {
 	CpComponent
 }
@@ -253,7 +252,7 @@ func DeleteRficByCpId(dal *Dal, cp_id int64) (int64, error) {
 }
 
 func FindRficByCpId(dal *Dal, cp_id int64) ([]*Rfic, error) {
-	query := fmt.Sprintf("SELECT * FROM %s where cp_id='%s' AND flag=%d", constant.TABLE_RFIC, cp_id, constant.AVAILABLE_FLAG)
+	query := fmt.Sprintf("SELECT * FROM %s where cp_id=%d AND flag=%d", constant.TABLE_RFIC, cp_id, constant.AVAILABLE_FLAG)
 	return FindRficList(dal, query)
 }
 
